@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>📋 Painel Administrativo - Mercatto Delivery</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f4f1ec;--card:#fffaf5;--accent:#b8860b;--ink:#3a2e1f;
+  --radius:10px;--shadow:0 3px 6px rgba(0,0,0,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  padding-bottom:80px;
+}
+header{
+  background:var(--accent);
+  color:#fff;
+  text-align:center;
+  padding:15px;
+  font-family:'Playfair Display',serif;
+  font-size:22px;
+  box-shadow:var(--shadow);
+}
+.container{
+  max-width:1000px;
+  margin:20px auto;
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:20px;
+}
+h2{
+  color:var(--accent);
+  margin-bottom:10px;
+  font-family:'Playfair Display',serif;
+}
+.filtros{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:15px;
+}
+.filtros input,.filtros select{
+  padding:8px;
+  border-radius:6px;
+  border:1px solid #d7ccbb;
+  flex:1;
+  min-width:150px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+th,td{
+  border:1px solid #e0d7c5;
+  padding:8px;
+  font-size:14px;
+  text-align:left;
+  vertical-align:top;
+}
+th{
+  background:var(--accent);
+  color:#fff;
+}
+tr:nth-child(even){background:#fdfaf5;}
+.status{
+  padding:5px 10px;
+  border-radius:6px;
+  font-weight:600;
+  color:#fff;
+  font-size:13px;
+}
+.status.Recebido{background:#6b7280;}
+.status["Em preparo"], .status["Em preparo"]{background:#eab308;}
+.status["Saiu para entrega"], .status["Saiu"]{background:#2563eb;}
+.status.Entregue{background:#16a34a;}
+.status.Cancelado{background:#b91c1c;}
+button{
+  background:var(--accent);
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  padding:6px 12px;
+  cursor:pointer;
+  font-weight:600;
+}
+button:hover{opacity:.9;}
+#btnAtualizar{
+  margin-left:auto;
+  display:block;
+  margin-top:10px;
+}
+@media print {
+  header,.filtros,#btnAtualizar{display:none;}
+  .container{box-shadow:none;}
+  body{background:white;}
+}
+</style>
+</head>
+<body>
+
+<header>🍽️ Painel Administrativo - Mercatto Delivery</header>
+
+<div class="container">
+  <h2>📦 Pedidos Recebidos</h2>
+
+  <div class="filtros">
+    <input type="date" id="filtroData">
+    <input type="text" id="filtroNome" placeholder="Buscar cliente...">
+    <select id="filtroStatus">
+      <option value="">Todos os Status</option>
+      <option>Recebido</option>
+      <option>Em preparo</option>
+      <option>Saiu para entrega</option>
+      <option>Entregue</option>
+      <option>Cancelado</option>
+    </select>
+    <button onclick="filtrarPedidos()">Filtrar</button>
+    <button onclick="window.print()">🖨️ Imprimir</button>
+  </div>
+
+  <table id="tabelaPedidos">
+    <thead>
+      <tr>
+        <th>Data/Hora</th>
+        <th>Cliente</th>
+        <th>Itens</th>
+        <th>Endereço</th>
+        <th>Pagamento</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <button id="btnAtualizar" onclick="carregarPedidos()">🔄 Atualizar</button>
+</div>
+
+<script>
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbyLxzKH1MflYrVBEzEd4JaYYbAkNi5R13YWzDO9ywt2tqsx113TLYybORrKYGURowak/exec";
+let pedidos = [];
+
+async function carregarPedidos(){
+  document.querySelector("#tabelaPedidos tbody").innerHTML = "<tr><td colspan='8' style='text-align:center;'>⏳ Carregando...</td></tr>";
+  try {
+    const r = await fetch(ENDPOINT + "?acao=listar");
+    pedidos = await r.json();
+    renderPedidos(pedidos);
+  } catch(e){
+    console.error(e);
+    alert("Erro ao carregar pedidos.");
+  }
+}
+
+function renderPedidos(lista){
+  const tbody = document.querySelector("#tabelaPedidos tbody");
+  tbody.innerHTML = "";
+  lista.forEach(p=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${p.dataHora||"-"}</td>
+      <td>${p.nome}</td>
+      <td>${p.itens||"-"}</td>
+      <td>${p.endereco||""}, ${p.numero||""} - ${p.bairro||""}</td>
+      <td>${p.forma||"-"}</td>
+      <td><strong>R$${Number(p.total||0).toFixed(2)}</strong></td>
+      <td><span class="status ${p.status||'Recebido'}">${p.status||'Recebido'}</span></td>
+      <td>
+        <select onchange="mudarStatus('${p.id}', this.value)">
+          <option selected hidden>${p.status||'Recebido'}</option>
+          <option>Recebido</option>
+          <option>Em preparo</option>
+          <option>Saiu para entrega</option>
+          <option>Entregue</option>
+          <option>Cancelado</option>
+        </select>
+        <button onclick="imprimirPedido('${p.nome}','${p.itens}','${p.total}')">🖨️</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function filtrarPedidos(){
+  const data = document.getElementById("filtroData").value;
+  const nome = document.getElementById("filtroNome").value.toLowerCase();
+  const status = document.getElementById("filtroStatus").value;
+  const filtrados = pedidos.filter(p=>{
+    const okData = !data || (p.dataHora && p.dataHora.includes(data));
+    const okNome = !nome || (p.nome && p.nome.toLowerCase().includes(nome));
+    const okStatus = !status || p.status===status;
+    return okData && okNome && okStatus;
+  });
+  renderPedidos(filtrados);
+}
+
+async function mudarStatus(id, novoStatus){
+  if(!confirm(`Alterar status para "${novoStatus}"?`)) return;
+  try{
+    const payload = {acao:"atualizarStatus", id, status:novoStatus};
+    const r = await fetch(ENDPOINT, {method:"POST",body:JSON.stringify(payload)});
+    const t = await r.text();
+    if(t.includes("ok")){
+      alert("✅ Status atualizado!");
+      carregarPedidos();
+    }else{
+      alert("❌ Erro ao atualizar status.");
+    }
+  }catch(e){
+    console.error(e);
+    alert("⚠️ Falha de conexão.");
+  }
+}
+
+function imprimirPedido(nome,itens,total){
+  const w = window.open("","print","width=600,height=800");
+  w.document.write(`
+    <html><head><title>Pedido de ${nome}</title></head>
+    <body style="font-family:Inter;padding:20px;">
+      <h2>🍽️ Mercatto Delivery</h2>
+      <p><strong>Cliente:</strong> ${nome}</p>
+      <p><strong>Itens:</strong> ${itens}</p>
+      <p><strong>Total:</strong> R$${Number(total).toFixed(2)}</p>
+      <hr><p>Obrigado por escolher o Mercatto!</p>
+      <script>window.print();setTimeout(()=>window.close(),1000);<\/script>
+    </body></html>
+  `);
+  w.document.close();
+}
+
+carregarPedidos();
+setInterval(carregarPedidos,60000); // Atualiza a cada 1 minuto
+</script>
+</body>
+</html>
