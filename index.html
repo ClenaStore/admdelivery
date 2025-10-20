@@ -64,22 +64,31 @@ select{border:1px solid #d7ccbb;border-radius:6px;padding:6px;background:#fff;fo
 </main>
 <script>
 const ENDPOINT="https://script.google.com/macros/s/AKfycbzXUygqP0pBJ-XL5RH-3Nwyr9iq2dPtxhB8ouyvXHCvpgNSDK9XVx5W9TL43HKbrgol/exec";
-let pedidos=[];
+let pedidos=[], pendentesAtuais=0;
+const audio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+
 async function carregarPedidos(){
   const tbody=document.querySelector("#tabelaPedidos tbody");
   tbody.innerHTML="<tr><td colspan='8' style='text-align:center;padding:20px;'>⏳ Carregando...</td></tr>";
   try{
     const r=await fetch(ENDPOINT+"?acao=listar");
     pedidos=await r.json();
-    filtrarPendentes();
+    const pendentes=pedidos.filter(p=>(p.status||"PENDENTE").toUpperCase().includes("PENDENTE"));
+    if(pendentes.length>pendentesAtuais && pendentesAtuais!==0){ audio.play(); }
+    pendentesAtuais=pendentes.length;
+    renderPedidos(pendentes);
   }catch(e){
     tbody.innerHTML="<tr><td colspan='8' style='text-align:center;color:red;'>Erro ao carregar pedidos ⚠️</td></tr>";
   }
 }
+
 function renderPedidos(lista){
   const tbody=document.querySelector("#tabelaPedidos tbody");
   tbody.innerHTML="";
-  if(lista.length===0){tbody.innerHTML="<tr><td colspan='8' style='text-align:center;padding:20px;'>Nenhum pedido encontrado.</td></tr>";return;}
+  if(lista.length===0){
+    tbody.innerHTML="<tr><td colspan='8' style='text-align:center;padding:20px;'>Nenhum pedido encontrado.</td></tr>";
+    return;
+  }
   lista.forEach(p=>{
     const status=(p.status||"PENDENTE").trim();
     const statusClass=status.replace(/\s/g,"_");
@@ -107,46 +116,33 @@ function renderPedidos(lista){
     tbody.appendChild(tr);
   });
 }
-function filtrarPendentes(){
-  const pendentes=pedidos.filter(p=>(p.status||"PENDENTE").toUpperCase().includes("PENDENTE")||(p.status||"").toUpperCase().includes("RECEBIDO"));
-  renderPedidos(pendentes);
-}
-function filtrarPedidos(){
-  const data=document.getElementById("filtroData").value;
-  const nome=document.getElementById("filtroNome").value.toLowerCase();
-  const status=document.getElementById("filtroStatus").value;
-  const filtrados=pedidos.filter(p=>{
-    const okStatus=!status||(p.status&&p.status.toUpperCase()===status.toUpperCase());
-    const okData=!data||(p.dataHora&&p.dataHora.includes(data));
-    const okNome=!nome||(p.nome&&p.nome.toLowerCase().includes(nome));
-    return okStatus&&okData&&okNome;
-  });
-  renderPedidos(filtrados);
-}
+
 async function mudarStatus(id,novoStatus){
   if(!confirm(`Alterar status para "${novoStatus}"?`))return;
-  try{
-    const payload={acao:"atualizarStatus",id,status:novoStatus};
-    const r=await fetch(ENDPOINT,{method:"POST",body:JSON.stringify(payload)});
-    const t=await r.text();
-    if(t.includes("ok"))carregarPedidos();else alert("❌ Erro ao atualizar status.");
-  }catch(e){alert("⚠️ Falha de conexão.");}
+  const payload={acao:"atualizarStatus",id,status:novoStatus};
+  const r=await fetch(ENDPOINT,{method:"POST",body:JSON.stringify(payload)});
+  if((await r.text()).includes("ok"))carregarPedidos();
 }
+
 function imprimirPedido(nome,itens,total){
   const w=window.open("","print","width=600,height=800");
-  w.document.write(`<html><head><title>Pedido de ${nome}</title></head>
-  <body style="font-family:Inter;padding:20px;">
-  <h2 style="color:#b8860b;">🍽️ Mercatto Delivery</h2>
-  <p><strong>Cliente:</strong> ${nome}</p>
-  <p><strong>Itens:</strong> ${itens}</p>
-  <p><strong>Total:</strong> R$${Number(total).toFixed(2)}</p>
-  <hr><p>Obrigado por escolher o Mercatto!</p>
-  <script>window.print();setTimeout(()=>window.close(),800);<\/script>
-  </body></html>`);
+  w.document.write(`
+    <html><head><title>Pedido de ${nome}</title></head>
+    <body style="font-family:Inter;padding:20px;">
+      <h2 style="color:#b8860b;">🍽️ Mercatto Delivery</h2>
+      <p><strong>Cliente:</strong> ${nome}</p>
+      <p><strong>Itens:</strong> ${itens}</p>
+      <p><strong>Total:</strong> R$${Number(total).toFixed(2)}</p>
+      <hr><p>Obrigado por escolher o Mercatto!</p>
+      <script>window.print();setTimeout(()=>window.close(),800);<\/script>
+    </body></html>
+  `);
   w.document.close();
 }
+
 carregarPedidos();
-setInterval(carregarPedidos,60000);
+setInterval(carregarPedidos,30000); // verifica a cada 30s
 </script>
+
 </body>
 </html>
