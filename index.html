@@ -5,234 +5,86 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>📋 Painel Administrativo - Mercatto Delivery</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
-
 <style>
-:root {
-  --bg:#f4f1ec;--card:#fffaf5;--accent:#b8860b;--ink:#3a2e1f;
-  --radius:10px;--shadow:0 3px 8px rgba(0,0,0,0.1);
-}
-
-/* ===== BASE ===== */
+:root{--bg:#f4f1ec;--card:#fffaf5;--accent:#b8860b;--ink:#3a2e1f;
+--radius:10px;--shadow:0 3px 8px rgba(0,0,0,0.1);}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{
-  font-family:'Inter',sans-serif;
-  background:var(--bg);
-  color:var(--ink);
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-}
-
-/* ===== CABEÇALHO ===== */
-header{
-  background:var(--accent);
-  color:#fff;
-  text-align:center;
-  padding:18px;
-  font-family:'Playfair Display',serif;
-  font-size:26px;
-  box-shadow:var(--shadow);
-  letter-spacing:0.5px;
-}
-
-/* ===== CONTEÚDO ===== */
-main{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  padding:20px;
-  gap:20px;
-}
-
-/* ===== CAIXA PRINCIPAL ===== */
-.painel{
-  background:var(--card);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  padding:20px;
-  display:flex;
-  flex-direction:column;
-  height:calc(100vh - 130px);
-  overflow:hidden;
-}
-
-/* ===== FILTROS ===== */
-.filtros{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:12px;
-  flex-wrap:wrap;
-}
-.filtros input, .filtros select{
-  padding:10px;
-  border-radius:6px;
-  border:1px solid #d7ccbb;
-  background:#fff;
-  flex:1;
-  min-width:150px;
-  font-size:14px;
-}
-.filtros button{
-  background:var(--accent);
-  color:#fff;
-  border:none;
-  border-radius:6px;
-  padding:10px 16px;
-  font-weight:600;
-  cursor:pointer;
-  transition:0.2s;
-}
-.filtros button:hover{opacity:0.9;}
-
-/* ===== TABELA ===== */
-.tabela-container{
-  flex:1;
-  overflow:auto;
-  border:1px solid #e0d7c5;
-  border-radius:var(--radius);
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:15px;
-}
-th, td{
-  padding:10px 12px;
-  border-bottom:1px solid #eae2d2;
-  text-align:left;
-}
-th{
-  background:var(--accent);
-  color:#fff;
-  position:sticky;
-  top:0;
-  z-index:2;
-  font-family:'Playfair Display',serif;
-}
-tr:nth-child(even){background:#fdfaf5;}
-tr:hover{background:#fff4dd;transition:0.2s;}
-
-/* ===== STATUS ===== */
-.status{
-  display:inline-block;
-  padding:6px 10px;
-  border-radius:8px;
-  font-weight:600;
-  color:#fff;
-  font-size:13px;
-}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;}
+header{background:var(--accent);color:#fff;text-align:center;padding:18px;font-family:'Playfair Display',serif;font-size:26px;box-shadow:var(--shadow);}
+main{flex:1;display:flex;flex-direction:column;padding:20px;}
+.painel{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;display:flex;flex-direction:column;height:calc(100vh - 130px);overflow:hidden;}
+.filtros{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.filtros input,.filtros select{padding:10px;border-radius:6px;border:1px solid #d7ccbb;background:#fff;flex:1;min-width:150px;font-size:14px;}
+.filtros button{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:10px 16px;font-weight:600;cursor:pointer;}
+.filtros button:hover{opacity:.9;}
+.tabela-container{flex:1;overflow:auto;border:1px solid #e0d7c5;border-radius:var(--radius);}
+table{width:100%;border-collapse:collapse;font-size:15px;}
+th,td{padding:10px 12px;border-bottom:1px solid #eae2d2;text-align:left;}
+th{background:var(--accent);color:#fff;position:sticky;top:0;font-family:'Playfair Display',serif;}
+tr:nth-child(even){background:#fdfaf5;}tr:hover{background:#fff4dd;}
+.status{display:inline-block;padding:6px 10px;border-radius:8px;font-weight:600;color:#fff;font-size:13px;}
 .status.PENDENTE,.status.Recebido{background:#6b7280;}
 .status.Em_preparo{background:#eab308;}
 .status.Saiu_para_entrega{background:#2563eb;}
 .status.Entregue{background:#16a34a;}
 .status.Cancelado{background:#b91c1c;}
-
-/* ===== BOTÕES ===== */
-button{
-  background:var(--accent);
-  color:#fff;
-  border:none;
-  border-radius:6px;
-  padding:6px 12px;
-  cursor:pointer;
-  font-weight:600;
-  transition:0.2s;
-}
+button{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-weight:600;}
 button:hover{opacity:.85;}
-select{
-  border:1px solid #d7ccbb;
-  border-radius:6px;
-  padding:6px;
-  background:#fff;
-  font-size:14px;
-}
-#btnAtualizar{
-  margin-top:10px;
-  align-self:flex-end;
-}
-
-/* ===== PRINT ===== */
-@media print {
-  header,.filtros,#btnAtualizar{display:none;}
-  .painel{box-shadow:none;border:none;}
-  body{background:white;}
-}
+select{border:1px solid #d7ccbb;border-radius:6px;padding:6px;background:#fff;font-size:14px;}
+@media print{header,.filtros{display:none;}body{background:white;}}
 </style>
 </head>
 <body>
-
 <header>🍽️ Painel Administrativo - Mercatto Delivery</header>
-
 <main>
-  <div class="painel">
-    <div class="filtros">
-      <input type="date" id="filtroData">
-      <input type="text" id="filtroNome" placeholder="Buscar cliente...">
-      <select id="filtroStatus">
-        <option value="">Todos os Status</option>
-        <option selected>PENDENTE</option>
-        <option>Recebido</option>
-        <option>Em preparo</option>
-        <option>Saiu para entrega</option>
-        <option>Entregue</option>
-        <option>Cancelado</option>
-      </select>
-      <button onclick="filtrarPedidos()">🔍 Filtrar</button>
-      <button onclick="window.print()">🖨️ Imprimir</button>
-      <button id="btnAtualizar" onclick="carregarPedidos()">🔄 Atualizar</button>
-    </div>
-
-    <div class="tabela-container">
-      <table id="tabelaPedidos">
-        <thead>
-          <tr>
-            <th>Data/Hora</th>
-            <th>Cliente</th>
-            <th>Itens</th>
-            <th>Endereço</th>
-            <th>Pagamento</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
+<div class="painel">
+  <div class="filtros">
+    <input type="date" id="filtroData">
+    <input type="text" id="filtroNome" placeholder="Buscar cliente...">
+    <select id="filtroStatus">
+      <option value="">Todos</option>
+      <option selected>PENDENTE</option>
+      <option>Recebido</option>
+      <option>Em preparo</option>
+      <option>Saiu para entrega</option>
+      <option>Entregue</option>
+      <option>Cancelado</option>
+    </select>
+    <button onclick="filtrarPedidos()">🔍 Filtrar</button>
+    <button onclick="window.print()">🖨️ Imprimir</button>
   </div>
+  <div class="tabela-container">
+    <table id="tabelaPedidos">
+      <thead>
+        <tr><th>Data/Hora</th><th>Cliente</th><th>Itens</th><th>Endereço</th><th>Pagamento</th><th>Total</th><th>Status</th><th>Ações</th></tr>
+      </thead><tbody></tbody>
+    </table>
+  </div>
+</div>
 </main>
-
 <script>
-const ENDPOINT = "https://script.google.com/macros/s/AKfycbyPmU8Cj_wd_vdFfHV_XkIGs-DB7DDSjLnfApOxkHiAJyFutP6n_dCxGAEoiAV7a8o/exec";
-let pedidos = [];
-
+const ENDPOINT="https://script.google.com/macros/s/AKfycbyPmU8Cj_wd_vdFfHV_XkIGs-DB7DDSjLnfApOxkHiAJyFutP6n_dCxGAEoiAV7a8o/exec";
+let pedidos=[];
 async function carregarPedidos(){
-  const tbody = document.querySelector("#tabelaPedidos tbody");
-  tbody.innerHTML = "<tr><td colspan='8' style='text-align:center;padding:20px;'>⏳ Carregando...</td></tr>";
-  try {
-    const r = await fetch(ENDPOINT + "?acao=listar");
-    pedidos = await r.json();
-    filtrarPendentes(); // exibe automaticamente só os pendentes
-  } catch(e){
-    console.error(e);
-    tbody.innerHTML = "<tr><td colspan='8' style='text-align:center;color:red;'>Erro ao carregar pedidos ⚠️</td></tr>";
+  const tbody=document.querySelector("#tabelaPedidos tbody");
+  tbody.innerHTML="<tr><td colspan='8' style='text-align:center;padding:20px;'>⏳ Carregando...</td></tr>";
+  try{
+    const r=await fetch(ENDPOINT+"?acao=listar");
+    pedidos=await r.json();
+    filtrarPendentes();
+  }catch(e){
+    tbody.innerHTML="<tr><td colspan='8' style='text-align:center;color:red;'>Erro ao carregar pedidos ⚠️</td></tr>";
   }
 }
-
 function renderPedidos(lista){
-  const tbody = document.querySelector("#tabelaPedidos tbody");
-  tbody.innerHTML = "";
-  if(lista.length === 0){
-    tbody.innerHTML = "<tr><td colspan='8' style='text-align:center;padding:20px;'>Nenhum pedido encontrado.</td></tr>";
-    return;
-  }
-
+  const tbody=document.querySelector("#tabelaPedidos tbody");
+  tbody.innerHTML="";
+  if(lista.length===0){tbody.innerHTML="<tr><td colspan='8' style='text-align:center;padding:20px;'>Nenhum pedido encontrado.</td></tr>";return;}
   lista.forEach(p=>{
-    const status = (p.status || "PENDENTE").trim();
-    const statusClass = status.replace(/\s/g,"_");
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
+    const status=(p.status||"PENDENTE").trim();
+    const statusClass=status.replace(/\s/g,"_");
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
       <td>${p.dataHora||"-"}</td>
       <td>${p.nome||"-"}</td>
       <td>${p.itens||"-"}</td>
@@ -241,7 +93,7 @@ function renderPedidos(lista){
       <td><strong>R$${Number(p.total||0).toFixed(2)}</strong></td>
       <td><span class="status ${statusClass}">${status}</span></td>
       <td>
-        <select onchange="mudarStatus('${p.id}', this.value)">
+        <select onchange="mudarStatus('${p.id}',this.value)">
           <option selected hidden>${status}</option>
           <option>PENDENTE</option>
           <option>Recebido</option>
@@ -255,63 +107,44 @@ function renderPedidos(lista){
     tbody.appendChild(tr);
   });
 }
-
 function filtrarPendentes(){
-  const pendentes = pedidos.filter(p => 
-    (p.status || "PENDENTE").toUpperCase().includes("PENDENTE") || 
-    (p.status || "").toUpperCase().includes("RECEBIDO")
-  );
+  const pendentes=pedidos.filter(p=>(p.status||"PENDENTE").toUpperCase().includes("PENDENTE")||(p.status||"").toUpperCase().includes("RECEBIDO"));
   renderPedidos(pendentes);
 }
-
 function filtrarPedidos(){
-  const data = document.getElementById("filtroData").value;
-  const nome = document.getElementById("filtroNome").value.toLowerCase();
-  const status = document.getElementById("filtroStatus").value;
-
-  const filtrados = pedidos.filter(p=>{
-    const okStatus = !status || (p.status && p.status.toUpperCase() === status.toUpperCase());
-    const okData = !data || (p.dataHora && p.dataHora.includes(data));
-    const okNome = !nome || (p.nome && p.nome.toLowerCase().includes(nome));
-    return okStatus && okData && okNome;
+  const data=document.getElementById("filtroData").value;
+  const nome=document.getElementById("filtroNome").value.toLowerCase();
+  const status=document.getElementById("filtroStatus").value;
+  const filtrados=pedidos.filter(p=>{
+    const okStatus=!status||(p.status&&p.status.toUpperCase()===status.toUpperCase());
+    const okData=!data||(p.dataHora&&p.dataHora.includes(data));
+    const okNome=!nome||(p.nome&&p.nome.toLowerCase().includes(nome));
+    return okStatus&&okData&&okNome;
   });
-
   renderPedidos(filtrados);
 }
-
-async function mudarStatus(id, novoStatus){
-  if(!confirm(`Alterar status para "${novoStatus}"?`)) return;
+async function mudarStatus(id,novoStatus){
+  if(!confirm(`Alterar status para "${novoStatus}"?`))return;
   try{
-    const payload = {acao:"atualizarStatus", id, status:novoStatus};
-    const r = await fetch(ENDPOINT, {method:"POST",body:JSON.stringify(payload)});
-    const t = await r.text();
-    if(t.includes("ok")){
-      carregarPedidos();
-    }else{
-      alert("❌ Erro ao atualizar status.");
-    }
-  }catch(e){
-    console.error(e);
-    alert("⚠️ Falha de conexão.");
-  }
+    const payload={acao:"atualizarStatus",id,status:novoStatus};
+    const r=await fetch(ENDPOINT,{method:"POST",body:JSON.stringify(payload)});
+    const t=await r.text();
+    if(t.includes("ok"))carregarPedidos();else alert("❌ Erro ao atualizar status.");
+  }catch(e){alert("⚠️ Falha de conexão.");}
 }
-
 function imprimirPedido(nome,itens,total){
-  const w = window.open("","print","width=600,height=800");
-  w.document.write(`
-    <html><head><title>Pedido de ${nome}</title></head>
-    <body style="font-family:Inter;padding:20px;">
-      <h2 style="color:#b8860b;">🍽️ Mercatto Delivery</h2>
-      <p><strong>Cliente:</strong> ${nome}</p>
-      <p><strong>Itens:</strong> ${itens}</p>
-      <p><strong>Total:</strong> R$${Number(total).toFixed(2)}</p>
-      <hr><p>Obrigado por escolher o Mercatto!</p>
-      <script>window.print();setTimeout(()=>window.close(),800);<\/script>
-    </body></html>
-  `);
+  const w=window.open("","print","width=600,height=800");
+  w.document.write(`<html><head><title>Pedido de ${nome}</title></head>
+  <body style="font-family:Inter;padding:20px;">
+  <h2 style="color:#b8860b;">🍽️ Mercatto Delivery</h2>
+  <p><strong>Cliente:</strong> ${nome}</p>
+  <p><strong>Itens:</strong> ${itens}</p>
+  <p><strong>Total:</strong> R$${Number(total).toFixed(2)}</p>
+  <hr><p>Obrigado por escolher o Mercatto!</p>
+  <script>window.print();setTimeout(()=>window.close(),800);<\/script>
+  </body></html>`);
   w.document.close();
 }
-
 carregarPedidos();
 setInterval(carregarPedidos,60000);
 </script>
