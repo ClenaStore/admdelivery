@@ -122,9 +122,9 @@ tr:hover{background:#fff4dd;transition:0.2s;}
   color:#fff;
   font-size:13px;
 }
-.status.Recebido{background:#6b7280;}
-.status["Em preparo"], .status["Em_preparo"], .status.Em_preparo{background:#eab308;}
-.status["Saiu para entrega"], .status["Saiu"], .status.Saiu{background:#2563eb;}
+.status.PENDENTE,.status.Recebido{background:#6b7280;}
+.status.Em_preparo{background:#eab308;}
+.status.Saiu_para_entrega{background:#2563eb;}
 .status.Entregue{background:#16a34a;}
 .status.Cancelado{background:#b91c1c;}
 
@@ -171,6 +171,7 @@ select{
       <input type="text" id="filtroNome" placeholder="Buscar cliente...">
       <select id="filtroStatus">
         <option value="">Todos os Status</option>
+        <option selected>PENDENTE</option>
         <option>Recebido</option>
         <option>Em preparo</option>
         <option>Saiu para entrega</option>
@@ -186,14 +187,14 @@ select{
       <table id="tabelaPedidos">
         <thead>
           <tr>
-            <th style="width:12%">Data/Hora</th>
-            <th style="width:15%">Cliente</th>
-            <th style="width:25%">Itens</th>
-            <th style="width:20%">Endereço</th>
-            <th style="width:10%">Pagamento</th>
-            <th style="width:8%">Total</th>
-            <th style="width:10%">Status</th>
-            <th style="width:10%">Ações</th>
+            <th>Data/Hora</th>
+            <th>Cliente</th>
+            <th>Itens</th>
+            <th>Endereço</th>
+            <th>Pagamento</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -212,17 +213,24 @@ async function carregarPedidos(){
   try {
     const r = await fetch(ENDPOINT + "?acao=listar");
     pedidos = await r.json();
-    renderPedidos(pedidos);
+    filtrarPendentes(); // exibe automaticamente só os pendentes
   } catch(e){
     console.error(e);
-    alert("Erro ao carregar pedidos.");
+    tbody.innerHTML = "<tr><td colspan='8' style='text-align:center;color:red;'>Erro ao carregar pedidos ⚠️</td></tr>";
   }
 }
 
 function renderPedidos(lista){
   const tbody = document.querySelector("#tabelaPedidos tbody");
   tbody.innerHTML = "";
+  if(lista.length === 0){
+    tbody.innerHTML = "<tr><td colspan='8' style='text-align:center;padding:20px;'>Nenhum pedido encontrado.</td></tr>";
+    return;
+  }
+
   lista.forEach(p=>{
+    const status = (p.status || "PENDENTE").trim();
+    const statusClass = status.replace(/\s/g,"_");
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${p.dataHora||"-"}</td>
@@ -231,10 +239,11 @@ function renderPedidos(lista){
       <td>${p.endereco||""}, ${p.numero||""} - ${p.bairro||""}</td>
       <td>${p.forma||"-"}</td>
       <td><strong>R$${Number(p.total||0).toFixed(2)}</strong></td>
-      <td><span class="status ${p.status?.replace(/\s/g,'_')||'Recebido'}">${p.status||'Recebido'}</span></td>
+      <td><span class="status ${statusClass}">${status}</span></td>
       <td>
         <select onchange="mudarStatus('${p.id}', this.value)">
-          <option selected hidden>${p.status||'Recebido'}</option>
+          <option selected hidden>${status}</option>
+          <option>PENDENTE</option>
           <option>Recebido</option>
           <option>Em preparo</option>
           <option>Saiu para entrega</option>
@@ -247,16 +256,26 @@ function renderPedidos(lista){
   });
 }
 
+function filtrarPendentes(){
+  const pendentes = pedidos.filter(p => 
+    (p.status || "PENDENTE").toUpperCase().includes("PENDENTE") || 
+    (p.status || "").toUpperCase().includes("RECEBIDO")
+  );
+  renderPedidos(pendentes);
+}
+
 function filtrarPedidos(){
   const data = document.getElementById("filtroData").value;
   const nome = document.getElementById("filtroNome").value.toLowerCase();
   const status = document.getElementById("filtroStatus").value;
+
   const filtrados = pedidos.filter(p=>{
+    const okStatus = !status || (p.status && p.status.toUpperCase() === status.toUpperCase());
     const okData = !data || (p.dataHora && p.dataHora.includes(data));
     const okNome = !nome || (p.nome && p.nome.toLowerCase().includes(nome));
-    const okStatus = !status || p.status===status;
-    return okData && okNome && okStatus;
+    return okStatus && okData && okNome;
   });
+
   renderPedidos(filtrados);
 }
 
