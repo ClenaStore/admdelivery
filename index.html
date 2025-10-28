@@ -3,112 +3,218 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>📦 Painel Administrativo • Mercatto Delivery</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+<title>ADM • Pedidos Mercatto</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0b0f19;--card:#151d2f;--text:#f8fafc;--muted:#94a3b8;
-  --accent:#ffb347;--accent2:#ff8f1f;--ok:#22c55e;--warn:#eab308;--err:#ef4444;
-  --radius:14px;--shadow:0 6px 20px rgba(0,0,0,.3);
+  --bg:#0b0f19;--card:#151d2f;--text:#f8fafc;
+  --accent:#b8860b;--accent2:#ffcc70;--muted:#94a3b8;
+  --radius:14px;--shadow:0 4px 16px rgba(0,0,0,.3);
 }
 body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:'Inter',sans-serif;overflow-x:hidden;
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  margin:0;
+  padding:0;
 }
 header{
-  background:linear-gradient(90deg,var(--accent2),var(--accent));
-  text-align:center;padding:20px 10px;font-size:22px;
-  font-family:'Playfair Display',serif;box-shadow:var(--shadow);
+  background:linear-gradient(90deg,#000,#1c1306);
+  color:var(--accent2);
+  text-align:center;
+  padding:14px;
+  font-size:20px;
+  font-weight:600;
+  letter-spacing:.5px;
+  box-shadow:var(--shadow);
 }
-.container{max-width:1100px;margin:20px auto;padding:0 15px;}
-.table{
-  width:100%;border-collapse:collapse;background:var(--card);
-  border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);
+.container{
+  padding:20px;
+  max-width:1100px;
+  margin:auto;
 }
-th,td{padding:10px 12px;text-align:left;font-size:14px;}
-th{background:#1e293b;text-transform:uppercase;font-size:13px;}
-tr:nth-child(even){background:#101827;}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+  background:var(--card);
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+th,td{
+  padding:10px;
+  text-align:left;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  font-size:14px;
+}
+th{background:#1e2538;color:var(--accent2);}
+tr:hover{background:#1e293b;}
 .status{
-  padding:4px 8px;border-radius:8px;font-weight:600;text-transform:capitalize;
+  padding:6px 10px;
+  border-radius:8px;
+  font-weight:600;
+  text-align:center;
+  color:#000;
 }
-.status.PENDENTE{background:#4338ca;color:#fff;}
-.status.APROVADO{background:var(--ok);color:#fff;}
-.status["SAIU PARA ENTREGA"]{background:var(--warn);color:#000;}
-.status.CONCLUÍDO{background:#047857;color:#fff;}
+.Pendente{background:#fbbf24;}
+['Em preparo']{background:#60a5fa;}
+['Saiu para entrega']{background:#34d399;}
+.Concluído{background:#22c55e;}
+.Cancelado{background:#ef4444;color:#fff;}
 button{
-  padding:6px 12px;border:none;border-radius:8px;font-weight:600;
-  cursor:pointer;transition:.2s;
+  background:var(--accent);
+  color:#000;
+  border:none;
+  border-radius:8px;
+  padding:6px 10px;
+  cursor:pointer;
+  font-weight:600;
+  transition:.2s;
 }
-.btnAprovar{background:var(--ok);color:#fff;}
-.btnEntrega{background:var(--warn);color:#000;}
-.btnConcluir{background:#047857;color:#fff;}
-.btnExcluir{background:var(--err);color:#fff;}
-button:hover{opacity:.85;}
-#overlay{
-  position:fixed;inset:0;display:none;align-items:center;justify-content:center;
-  background:rgba(0,0,0,0.7);color:#fff;font-size:18px;z-index:9999;
+button:hover{background:var(--accent2);}
+select{
+  background:#1e293b;
+  border:none;
+  color:#fff;
+  border-radius:6px;
+  padding:6px;
+}
+.loader{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.8);
+  color:#fff;
+  font-size:18px;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  flex-direction:column;
+}
+.loader img{width:80px;margin-bottom:10px;}
+.search-box{
+  display:flex;
+  gap:10px;
+  justify-content:space-between;
+  align-items:center;
+  background:#1e293b;
+  border-radius:8px;
+  padding:10px 14px;
+  margin-bottom:12px;
+}
+.search-box input{
+  flex:1;
+  background:none;
+  border:none;
+  outline:none;
+  color:#fff;
+  font-size:14px;
 }
 </style>
 </head>
 <body>
 <header>📦 Painel de Pedidos - Mercatto Delivery</header>
+
 <div class="container">
-  <table class="table" id="tabela">
+  <div class="search-box">
+    <input type="text" id="filtro" placeholder="Filtrar por cliente, bairro, status..." oninput="filtrarPedidos()">
+    <button onclick="carregarPedidos()">🔄 Atualizar</button>
+  </div>
+
+  <table id="tabela">
     <thead>
       <tr>
-        <th>Data/Hora</th><th>Nome</th><th>Itens</th><th>Total</th>
-        <th>Status</th><th>Ações</th>
+        <th>Data</th>
+        <th>Cliente</th>
+        <th>Itens</th>
+        <th>Total</th>
+        <th>Pagamento</th>
+        <th>Status</th>
+        <th>Ações</th>
       </tr>
     </thead>
-    <tbody id="listaPedidos"></tbody>
+    <tbody id="corpo"></tbody>
   </table>
 </div>
 
-<div id="overlay">Atualizando status...</div>
+<div class="loader" id="loader">
+  <img src="./paste/logo.png">
+  <p>Carregando pedidos...</p>
+</div>
 
 <script>
-const ENDPOINT = "https://script.google.com/macros/s/AKfycbxcdhUN2YY-iSejxsxc7AWAG4t_DYKN7_tJkNrZ4O1acG5v0Wr0zUDMga2b2FiOs6Qa/exec";
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbwnG9DCUOAQoKWdowIHnXp8MW_VqAZKdM9e1I4HHmVQlUU5hNzcdFkxy7n-3sSuLiU/exec";
 
-/* 🔄 CARREGAR PEDIDOS */
+let pedidos = [];
+
 async function carregarPedidos(){
-  const res = await fetch(`${ENDPOINT}?acao=listaPedidos`);
-  const pedidos = await res.json();
-  const corpo = document.getElementById("listaPedidos");
-  corpo.innerHTML = "";
+  const loader=document.getElementById('loader');
+  loader.style.display='flex';
+  try{
+    const r=await fetch(ENDPOINT+"?acao=lerPedidos");
+    const dados=await r.json();
+    pedidos=dados || [];
+    renderizarTabela(pedidos);
+  }catch(e){
+    alert("Erro ao carregar pedidos");
+  }
+  loader.style.display='none';
+}
 
-  pedidos.reverse().forEach(p=>{
+function renderizarTabela(lista){
+  const corpo=document.getElementById('corpo');
+  corpo.innerHTML="";
+  if(!lista.length){
+    corpo.innerHTML=`<tr><td colspan="7" style="text-align:center;color:#999;">Nenhum pedido encontrado</td></tr>`;
+    return;
+  }
+  lista.forEach(p=>{
     const tr=document.createElement("tr");
     tr.innerHTML=`
-      <td>${p["Data/Hora"]||""}</td>
-      <td>${p["Nome"]||""}</td>
-      <td>${p["Itens"]||""}</td>
-      <td><strong>R$${Number(p["Total (R$)"]||0).toFixed(2)}</strong></td>
-      <td><span class="status ${p.Status}">${p.Status}</span></td>
+      <td>${p.data||""}</td>
+      <td><strong>${p.cliente?.nome||""}</strong><br><small>${p.cliente?.bairro||""}</small></td>
+      <td>${p.itens||""}</td>
+      <td><strong>R$ ${parseFloat(p.total||0).toFixed(2)}</strong></td>
+      <td>${p.cliente?.pagamento||""}</td>
+      <td><span class="status ${p.status||'Pendente'}">${p.status||'Pendente'}</span></td>
       <td>
-        <button class="btnAprovar" onclick="mudarStatus('${p['Código Interno (ID Pedido)']}','APROVADO')">Aprovar</button>
-        <button class="btnEntrega" onclick="mudarStatus('${p['Código Interno (ID Pedido)']}','SAIU PARA ENTREGA')">Entrega</button>
-        <button class="btnConcluir" onclick="mudarStatus('${p['Código Interno (ID Pedido)']}','CONCLUÍDO')">Concluir</button>
-      </td>`;
+        <select onchange="alterarStatus('${p.id}',this.value)">
+          <option>Pendente</option>
+          <option>Em preparo</option>
+          <option>Saiu para entrega</option>
+          <option>Concluído</option>
+          <option>Cancelado</option>
+        </select>
+      </td>
+    `;
+    tr.querySelector("select").value = p.status || "Pendente";
     corpo.appendChild(tr);
   });
 }
 
-/* 🔁 ALTERAR STATUS */
-async function mudarStatus(id, status){
-  document.getElementById("overlay").style.display="flex";
+async function alterarStatus(id,novoStatus){
+  if(!confirm(`Deseja marcar o pedido como "${novoStatus}"?`))return;
+  document.getElementById('loader').style.display='flex';
   try{
-    const r = await fetch(`${ENDPOINT}?acao=atualizaStatus&id=${id}&status=${encodeURIComponent(status)}`);
-    const t = await r.text();
-    if(t.includes("ok")){
-      await carregarPedidos();
-    }else{
-      alert("Erro ao atualizar status!");
-    }
-  }catch(err){
-    alert("Erro de conexão: "+err);
-  }finally{
-    document.getElementById("overlay").style.display="none";
-  }
+    await fetch(ENDPOINT,{
+      method:"POST",
+      body:JSON.stringify({acao:"atualizarStatus",id,novoStatus})
+    });
+    alert("✅ Status atualizado!");
+    carregarPedidos();
+  }catch(e){alert("Erro ao atualizar status.");}
+  document.getElementById('loader').style.display='none';
+}
+
+function filtrarPedidos(){
+  const termo=document.getElementById('filtro').value.toLowerCase();
+  const filtrados=pedidos.filter(p=>
+    (p.cliente?.nome||"").toLowerCase().includes(termo) ||
+    (p.cliente?.bairro||"").toLowerCase().includes(termo) ||
+    (p.status||"").toLowerCase().includes(termo)
+  );
+  renderizarTabela(filtrados);
 }
 
 window.onload=carregarPedidos;
