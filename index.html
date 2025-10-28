@@ -175,12 +175,12 @@ function renderTabela(lista){
         <td>${total}</td>
         <td>${p["Forma de Pagamento"]||''}</td>
         <td><span class="status ${status.replace(' ','_')}">${status}</span></td>
-        <td>
-          <button class="acao" onclick="mudarStatus('${p.ID}','Aceito')">Aceitar</button>
-          <button class="acao" onclick="mudarStatus('${p.ID}','Em rota')">Rota</button>
-          <button class="acao" onclick="mudarStatus('${p.ID}','Entregue')">Entregue</button>
-          <button class="acao" style="background:#7f1d1d;color:#fff;" onclick="mudarStatus('${p.ID}','Cancelado')">Cancelar</button>
-        </td>
+<td>
+  <button class="acao" onclick="mudarStatus('${p.ID}','Aceito')">Aceitar</button>
+  <button class="acao" onclick="mudarStatus('${p.ID}','Saiu para entrega')">Saiu p/ entrega</button>
+  <button class="acao" style="background:#7f1d1d;color:#fff;" onclick="mudarStatus('${p.ID}','Cancelado')">Cancelar</button>
+</td>
+
       </tr>`;
   }).join('');
 }
