@@ -2,235 +2,199 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel de Pedidos - Mercatto Delivery</title>
-
 <style>
-:root{
-  --bg:#0b0f19;
-  --card:#151d2f;
-  --text:#f8fafc;
-  --muted:#94a3b8;
-  --accent:#b8860b;
-  --accent2:#ffcc70;
-  --radius:14px;
-  --shadow:0 6px 18px rgba(0,0,0,.4);
-}
-body{
-  margin:0;
-  font-family:'Inter',sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  overflow-x:hidden;
-}
-header{
-  text-align:center;
-  padding:14px;
-  background:linear-gradient(90deg,#000,#2a1c08);
-  color:var(--accent2);
-  font-size:20px;
-  font-weight:600;
-  letter-spacing:.3px;
-  box-shadow:var(--shadow);
-}
-.container{
-  max-width:1200px;
-  margin:25px auto;
-  padding:0 10px;
-}
-.filtro{
-  display:flex;
-  gap:10px;
-  background:#1e293b;
-  padding:10px;
-  border-radius:var(--radius);
-  align-items:center;
-}
-.filtro input{
-  flex:1;
-  background:none;
-  border:none;
-  color:#fff;
-  outline:none;
-  padding:10px;
-  font-size:14px;
-}
-.filtro button{
-  background:var(--accent);
-  border:none;
-  color:#000;
-  font-weight:600;
-  border-radius:8px;
-  padding:8px 12px;
-  cursor:pointer;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-  font-size:14px;
-}
-th,td{
-  padding:10px;
-  text-align:left;
-}
-th{
-  background:#1e2538;
-  color:var(--accent2);
-  position:sticky;
-  top:0;
-}
-tr:nth-child(even){background:#121826;}
-tr:hover{background:#1c2536;}
-.status{
-  padding:4px 8px;
-  border-radius:8px;
-  font-weight:600;
-  text-transform:capitalize;
-}
-.status.Pendente{background:#444;color:#ffcc70;}
-.status.Aceito{background:#166534;color:#fff;}
-.status.Em\ rota{background:#2563eb;color:#fff;}
-.status.Entregue{background:#15803d;color:#fff;}
-.status.Cancelado{background:#7f1d1d;color:#fff;}
-button.acao{
-  background:var(--accent);
-  color:#000;
-  border:none;
-  border-radius:8px;
-  padding:6px 10px;
-  font-size:13px;
-  cursor:pointer;
-  transition:.2s;
-}
-button.acao:hover{
-  background:var(--accent2);
-}
-@media(max-width:768px){
-  th,td{font-size:12px;padding:8px;}
-  .filtro{flex-direction:column;}
-}
+  body {
+    margin: 0;
+    background: #0f172a;
+    font-family: 'Inter', sans-serif;
+    color: #f8fafc;
+  }
+  header {
+    background: #2d1b0e;
+    color: #facc15;
+    text-align: center;
+    padding: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 25px auto;
+    padding: 15px;
+  }
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #aaa;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  .status-bar span {
+    color: #facc15;
+  }
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th {
+    background: #1e293b;
+    color: #facc15;
+    padding: 12px;
+    text-align: left;
+    font-size: 14px;
+  }
+  td {
+    background: #0f172a;
+    padding: 10px;
+    border-bottom: 1px solid #1e293b;
+    font-size: 14px;
+  }
+  .status {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+  }
+  .pendente { background: #475569; color: #fff; }
+  .aceito { background: #22c55e; color: #fff; }
+  .entrega { background: #facc15; color: #000; }
+  .cancelado { background: #ef4444; color: #fff; }
+  .btn {
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-right: 4px;
+    transition: 0.2s;
+  }
+  .btn:hover { opacity: 0.8; }
+  .btn-aceitar { background: #facc15; color: #000; }
+  .btn-entrega { background: #d97706; color: #fff; }
+  .btn-cancelar { background: #b91c1c; color: #fff; }
+  .btn-whats { background: #25D366; color: #fff; }
+  .no-pedidos {
+    text-align: center;
+    padding: 20px;
+    color: #94a3b8;
+  }
 </style>
 </head>
 <body>
-<header>📦 Painel de Pedidos - Mercatto Delivery</header>
+  <header>📦 Painel de Pedidos - Mercatto Delivery</header>
+  <div class="container">
+    <div class="status-bar">
+      <div>🔄 Atualiza automaticamente a cada 30s</div>
+      <div>🕒 Última atualização: <span id="ultimaAtualizacao">--</span></div>
+    </div>
 
-<div class="container">
-  <div class="filtro">
-    <input id="busca" type="text" placeholder="Filtrar por cliente, bairro, status...">
-    <button onclick="carregarPedidos()">🔄 Atualizar</button>
+    <table class="table" id="tabelaPedidos">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Cliente</th>
+          <th>Itens</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="listaPedidos">
+        <tr><td colspan="6" class="no-pedidos">Carregando pedidos...</td></tr>
+      </tbody>
+    </table>
   </div>
 
-  <table id="tabela">
-    <thead>
-      <tr>
-        <th>Data</th>
-        <th>Cliente</th>
-        <th>Itens</th>
-        <th>Total</th>
-        <th>Pagamento</th>
-        <th>Status</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody id="tbody">
-      <tr><td colspan="7" style="text-align:center;color:#aaa;">Carregando pedidos...</td></tr>
-    </tbody>
-  </table>
-</div>
+  <audio id="audioNovoPedido" src="https://cdn.pixabay.com/download/audio/2023/03/30/audio_5fce3de1a7.mp3?filename=notification-102748.mp3" preload="auto"></audio>
 
 <script>
-const ENDPOINT = "https://script.google.com/macros/s/AKfycbznpq0NwLgqMv31TbFM7HyFzIEHE8ccmon1n1b4N6S3EtOBFr0DxwssBP5_0qZa9tB7/exec";
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbzd_mqSFGXvBQEANFA1UjNwq_YnyH2tXAY8KzAqqi-pDBfk0VFltTlxctC2W3hLCLtr/exec";
+let ultimoTotal = 0;
 
-let todosPedidos = [];
+// 🔁 Atualiza pedidos
+async function carregarPedidos(playSound = true) {
+  try {
+    const res = await fetch(ENDPOINT + "?acao=listarPedidos");
+    const data = await res.json();
 
-async function carregarPedidos(){
-  const tbody = document.getElementById('tbody');
-  tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#aaa;">⏳ Carregando...</td></tr>`;
-  try{
-    const resp = await fetch(ENDPOINT+"?acao=lerPedidos");
-    const dados = await resp.json();
-    todosPedidos = dados.pedidos || [];
-    renderTabela(todosPedidos);
-  }catch(e){
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#fca5a5;">Erro ao carregar pedidos</td></tr>`;
+    const lista = document.getElementById("listaPedidos");
+    lista.innerHTML = "";
+
+    if (!data || !data.pedidos || data.pedidos.length === 0) {
+      lista.innerHTML = `<tr><td colspan="6" class="no-pedidos">Nenhum pedido encontrado.</td></tr>`;
+      return;
+    }
+
+    // 🔔 Se chegou pedido novo
+    if (playSound && data.pedidos.length > ultimoTotal) {
+      document.getElementById("audioNovoPedido").play();
+    }
+    ultimoTotal = data.pedidos.length;
+
+    data.pedidos.forEach(p => {
+      const tr = document.createElement("tr");
+      const corStatus = {
+        "Pendente": "pendente",
+        "Aceito": "aceito",
+        "Saiu para entrega": "entrega",
+        "Cancelado": "cancelado"
+      }[p.status] || "pendente";
+
+      tr.innerHTML = `
+        <td>${p.data || "--"}</td>
+        <td>${p.nome || ""}<br><small>${p.whats ? "📞 " + p.whats : ""}</small></td>
+        <td>${p.itens || ""}</td>
+        <td><b>${p.total || ""}</b></td>
+        <td><span class="status ${corStatus}">${p.status}</span></td>
+        <td>
+          <button class="btn btn-aceitar" onclick="atualizarStatus('${p.email}','Aceito')">Aceitar</button>
+          <button class="btn btn-entrega" onclick="atualizarStatus('${p.email}','Saiu para entrega')">Saiu p/ entrega</button>
+          <button class="btn btn-cancelar" onclick="atualizarStatus('${p.email}','Cancelado')">Cancelar</button>
+          <button class="btn btn-whats" onclick="abrirWhats('${p.whats}','Olá ${p.nome}, seu pedido está em andamento! 🍝')">WhatsApp</button>
+        </td>
+      `;
+      lista.appendChild(tr);
+    });
+
+    document.getElementById("ultimaAtualizacao").textContent = new Date().toLocaleTimeString();
+  } catch (err) {
+    console.error("Erro ao carregar pedidos", err);
   }
 }
 
-function renderTabela(lista){
-  const tbody=document.getElementById('tbody');
-  if(!lista.length){
-    tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;color:#aaa;">Nenhum pedido encontrado</td></tr>`;
-    return;
-  }
-  tbody.innerHTML=lista.map(p=>{
-    const total = Number(p.Total||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-    const itens = (p.Itens||'').split(',').slice(0,2).join(', ') + (p.Itens?.split(',').length>2?'...':'');
-    const status = p.Status||'Pendente';
-    return `
-      <tr>
-        <td>${formatarData(p["Data/Hora"])}</td>
-        <td>${p.Nome||'-'}<br><small>${p.Bairro||''}</small></td>
-        <td>${itens}</td>
-        <td>${total}</td>
-        <td>${p["Forma de Pagamento"]||''}</td>
-        <td><span class="status ${status.replace(' ','_')}">${status}</span></td>
-<td>
-  <button class="acao" onclick="mudarStatus('${p.ID}','Aceito')">Aceitar</button>
-  <button class="acao" onclick="mudarStatus('${p.ID}','Saiu para entrega')">Saiu p/ entrega</button>
-  <button class="acao" style="background:#7f1d1d;color:#fff;" onclick="mudarStatus('${p.ID}','Cancelado')">Cancelar</button>
-</td>
-
-      </tr>`;
-  }).join('');
-}
-
-function formatarData(d){
-  if(!d) return '';
-  try{
-    return new Date(d).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-  }catch{return d;}
-}
-
-async function mudarStatus(id, novo){
-  const confirmacao = confirm(`Confirmar mudança de status para "${novo}"?`);
-  if(!confirmacao) return;
-  try{
-    const body = {
-      acao: "atualizarStatus",
-      id: id,
-      novoStatus: novo
-    };
-    const r = await fetch(ENDPOINT, {
+// 🟢 Atualiza status via POST
+async function atualizarStatus(email, status) {
+  const confirma = confirm(`Deseja realmente marcar o pedido de ${email} como "${status}"?`);
+  if (!confirma) return;
+  try {
+    const res = await fetch(ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      body: JSON.stringify({ acao: "atualizarStatus", email, status })
     });
-    const resp = await r.json();
-    if (resp.sucesso) {
-      alert(resp.mensagem || "Status atualizado!");
-      carregarPedidos();
-    } else {
-      alert("Falha: " + (resp.erro || resp.mensagem));
-    }
-  } catch (e) {
-    console.error(e);
-    alert("Erro ao atualizar status.");
+    const txt = await res.text();
+    alert(txt);
+    carregarPedidos(false);
+  } catch (err) {
+    alert("Erro ao atualizar status: " + err.message);
   }
 }
 
+// 🟢 Abrir WhatsApp
+function abrirWhats(whats, msg) {
+  if (!whats) return alert("Número de WhatsApp não encontrado.");
+  const numero = whats.replace(/\D/g, "");
+  const link = `https://wa.me/55${numero}?text=${encodeURIComponent(msg)}`;
+  window.open(link, "_blank");
+}
 
-document.getElementById('busca').addEventListener('input',()=>{
-  const termo = document.getElementById('busca').value.toLowerCase();
-  const filtrados = todosPedidos.filter(p=>
-    (p.Nome||'').toLowerCase().includes(termo) ||
-    (p.Bairro||'').toLowerCase().includes(termo) ||
-    (p.Status||'').toLowerCase().includes(termo)
-  );
-  renderTabela(filtrados);
-});
-
-carregarPedidos();
+// 🔄 Atualiza automaticamente
+carregarPedidos(false);
+setInterval(() => carregarPedidos(true), 30000);
 </script>
 </body>
 </html>
