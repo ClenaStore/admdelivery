@@ -192,23 +192,33 @@ function formatarData(d){
   }catch{return d;}
 }
 
-async function mudarStatus(id,novo){
+async function mudarStatus(id, novo){
   const confirmacao = confirm(`Confirmar mudança de status para "${novo}"?`);
   if(!confirmacao) return;
   try{
-    const body = {acao:"atualizarStatus",id,novoStatus:novo};
-    const r = await fetch(ENDPOINT,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(body)
+    const body = {
+      acao: "atualizarStatus",
+      id: id,
+      novoStatus: novo
+    };
+    const r = await fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
     });
     const resp = await r.json();
-    alert(resp.mensagem||"Status atualizado!");
-    carregarPedidos();
-  }catch(e){
+    if (resp.sucesso) {
+      alert(resp.mensagem || "Status atualizado!");
+      carregarPedidos();
+    } else {
+      alert("Falha: " + (resp.erro || resp.mensagem));
+    }
+  } catch (e) {
+    console.error(e);
     alert("Erro ao atualizar status.");
   }
 }
+
 
 document.getElementById('busca').addEventListener('input',()=>{
   const termo = document.getElementById('busca').value.toLowerCase();
